@@ -1,4 +1,4 @@
-!function() {
+!(function() {
   'use strict';
   var _undefined;
 
@@ -38,27 +38,23 @@
 
   function assignOne(dst, src) {
     if (src) {
-      var keys = objectKeys(src);
-      for (var i = 0; i < keys[_length]; i++) {
-        dst[keys[i]] = src[keys[i]];
-      }
+      Object.defineProperties(dst, Object.getOwnPropertyDescriptors(src));
     }
     return dst;
   }
 
-  var assign = _Object.assign || _mergeOrAssign.bind(0, assignOne);
+  var assign = _mergeOrAssign.bind(0, assignOne);
 
   function isFunction(obj) {
     return typeof obj == 'function';
   }
 
   function isObject(obj) {
-    return obj && typeof obj == _object || isFunction(obj);
+    return (obj && typeof obj == _object) || isFunction(obj);
   }
 
   function isPlainObject(value) {
-    return value && typeof value == _object &&
-      value.__proto__ == _Object.prototype;
+    return value && typeof value == _object && value.__proto__ == _Object.prototype;
   }
 
   /**
@@ -79,8 +75,10 @@
     // Note that functions are also assigned! We do not deep merge functions.
     if (!isPlainObject(src)) return src;
 
-    var keys = objectKeys(src), i = 0, key;
-    for (; i < keys[_length];) {
+    var keys = objectKeys(src),
+      i = 0,
+      key;
+    for (; i < keys[_length]; ) {
       key = keys[i++];
 
       // Do not merge properties with the '_undefined' value.
@@ -105,7 +103,6 @@
     });
     return var1[_length] ? var1 : _undefined;
   }
-
 
   /**
    * Converts stampit extended descriptor to a standard one.
@@ -182,7 +179,8 @@
       // Next line was optimized for most JS VMs. Please, be careful here!
       var obj = {__proto__: i[_methods]};
 
-      var inits = i[_initializers], args = slice.apply(arguments);
+      var inits = i[_initializers],
+        args = slice.apply(arguments);
       var initializer, returnedValue;
 
       var tmp = i[_deepProperties];
@@ -195,11 +193,10 @@
       if (!inits || !inits[_length]) return obj;
 
       if (options === _undefined) options = {};
-      for (i = 0; i < inits[_length];) {
+      for (i = 0; i < inits[_length]; ) {
         initializer = inits[i++];
         if (isFunction(initializer)) {
-          returnedValue = initializer.call(obj, options,
-            {instance: obj, stamp: Stamp, args: args});
+          returnedValue = initializer.call(obj, options, {instance: obj, stamp: Stamp, args: args});
           obj = returnedValue === _undefined ? obj : returnedValue;
         }
       }
@@ -226,9 +223,12 @@
     if (var2) defineProperties(var1, var2);
 
     var2 = isFunction(var1[_compose]) ? var1[_compose] : compose;
-    assign(var1[_compose] = function() {
-      return var2.apply(this, arguments);
-    }, descriptor);
+    assign(
+      (var1[_compose] = function() {
+        return var2.apply(this, arguments);
+      }),
+      descriptor
+    );
 
     return var1;
   }
@@ -256,7 +256,7 @@
       if (var1) dstDescriptor[propName] = var1;
     }
 
-    if (srcComposable && isObject(srcComposable = srcComposable[_compose] || srcComposable)) {
+    if (srcComposable && isObject((srcComposable = srcComposable[_compose] || srcComposable))) {
       mergeAssign(_methods);
       mergeAssign(_properties);
       mergeAssign(_deepProperties, merge);
@@ -281,11 +281,9 @@
    * @returns {Stamp} A new stamp (aka composable factory function)
    */
   function compose() {
-    var descriptor = concat.apply([this], arguments)
-    .reduce(mergeComposable, {});
+    var descriptor = concat.apply([this], arguments).reduce(mergeComposable, {});
     return createStamp(descriptor);
   }
-
 
   /**
    * The Stamp Descriptor
@@ -328,32 +326,43 @@
 
   allUtilities[_methods] = createUtilityFunction(_methods, assign);
 
-  allUtilities[_properties] = allUtilities.props =
-    createUtilityFunction(_properties, assign);
+  allUtilities[_properties] = allUtilities.props = createUtilityFunction(_properties, assign);
 
-  allUtilities[_initializers] = allUtilities.init =
-    createUtilityFunction(_initializers, extractUniqueFunctions);
+  allUtilities[_initializers] = allUtilities.init = createUtilityFunction(
+    _initializers,
+    extractUniqueFunctions
+  );
 
   allUtilities[_composers] = createUtilityFunction(_composers, extractUniqueFunctions);
 
-  allUtilities[_deepProperties] = allUtilities[_deepProps] =
-    createUtilityFunction(_deepProperties, merge);
+  allUtilities[_deepProperties] = allUtilities[_deepProps] = createUtilityFunction(
+    _deepProperties,
+    merge
+  );
 
-  allUtilities[_staticProperties] = allUtilities.statics =
-    createUtilityFunction(_staticProperties, assign);
+  allUtilities[_staticProperties] = allUtilities.statics = createUtilityFunction(
+    _staticProperties,
+    assign
+  );
 
-  allUtilities[_staticDeepProperties] = allUtilities[_deepStatics] =
-    createUtilityFunction(_staticDeepProperties, merge);
+  allUtilities[_staticDeepProperties] = allUtilities[_deepStatics] = createUtilityFunction(
+    _staticDeepProperties,
+    merge
+  );
 
-  allUtilities[_configuration] = allUtilities.conf =
-    createUtilityFunction(_configuration, assign);
+  allUtilities[_configuration] = allUtilities.conf = createUtilityFunction(_configuration, assign);
 
-  allUtilities[_deepConfiguration] = allUtilities[_deepConf] =
-    createUtilityFunction(_deepConfiguration, merge);
+  allUtilities[_deepConfiguration] = allUtilities[_deepConf] = createUtilityFunction(
+    _deepConfiguration,
+    merge
+  );
 
   allUtilities[_propertyDescriptors] = createUtilityFunction(_propertyDescriptors, assign);
 
-  allUtilities[_staticPropertyDescriptors] = createUtilityFunction(_staticPropertyDescriptors, assign);
+  allUtilities[_staticPropertyDescriptors] = createUtilityFunction(
+    _staticPropertyDescriptors,
+    assign
+  );
 
   function createUtilityFunction(propName, action) {
     return function() {
@@ -371,8 +380,12 @@
    * @return {Stamp} The Stampit-flavoured stamp
    */
   var2 = allUtilities[_compose] = assign(function stampit() {
-    var i = 0, composable, composables = [], array = arguments, composerResult = this;
-    for (; i < array[_length];) {
+    var i = 0,
+      composable,
+      composables = [],
+      array = arguments,
+      composerResult = this;
+    for (; i < array[_length]; ) {
       composable = array[i++];
       if (isObject(composable)) {
         composables.push(isStamp(composable) ? composable : standardiseDescriptor(composable));
@@ -385,7 +398,7 @@
 
     array = composable[_compose][_composers];
     if (isArray(array)) {
-      for (i = 0; i < array[_length];) {
+      for (i = 0; i < array[_length]; ) {
         composerResult = array[i++]({stamp: composable, composables: composables});
         composable = isStamp(composerResult) ? composerResult : composable;
       }
@@ -411,5 +424,6 @@
   var2[_compose] = var2.bind(); // bind to undefined
   var2.version = 'VERSION';
 
-  if (typeof _undefined != typeof module) module.exports = var2; else self.stampit = var2;
-}();
+  if (typeof _undefined != typeof module) module.exports = var2;
+  else self.stampit = var2;
+})();
